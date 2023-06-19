@@ -81,6 +81,29 @@ az group create --name $resourceGroupSecondary --location $regionSecondary
 ### Create Primary and Secondary VNET
 
 ```text
-az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name subnet-1 --subnet-prefixes $subnetPrefixPrimary
-az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name subnet-1 --subnet-prefixes $subnetPrefixSecondary
+az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name subnet1 --subnet-prefixes $subnetPrefixPrimary
+az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name subnet1 --subnet-prefixes $subnetPrefixSecondary
 ```
+
+### Peer virtual networks (VNET Peering)
+
+#### Get the resource id's of the VNETs
+
+```text
+vnetPrimaryId=$(az network vnet show --resource-group $resourceGroupPrimary --name $vnetPrimary --query id --out tsv)
+vnetSecondaryId=$(az network vnet show --resource-group $resourceGroupSecondary --name $vnetSecondary --query id --out tsv)
+```
+
+#### Create a peering from vnetPrimary to vnetSecondary
+
+```text
+az network vnet peering create --name vnetPrimary-vnetSecondary --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --remote-vnet $vnetSecondaryId --allow-vnet-access
+```
+
+#### Create a peering from vnetSecondary to vnetPrimary
+
+```text
+az network vnet peering create --name vnetSecondary-vnetPrimary --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --remote-vnet $vnetPrimaryId --allow-vnet-access
+```
+
+
