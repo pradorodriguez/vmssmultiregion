@@ -58,6 +58,7 @@ subnetCIDRPrimary="10.0.0.0/16"
 subnetCIDRSecondary="10.1.0.0/16"
 subnetPrefixPrimary="10.0.0.0/24"
 subnetPrefixSecondary="10.1.0.0/24"
+subnetName="subnet1"
 nsgPrimary="nsgpri$randomString"
 nsgSecondary="nsgsec$randomString"
 loadBalancerPrimary="lbpri$randomString"
@@ -81,8 +82,8 @@ az group create --name $resourceGroupSecondary --location $regionSecondary
 ### Create Primary and Secondary VNET
 
 ```text
-az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name subnet1 --subnet-prefixes $subnetPrefixPrimary
-az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name subnet1 --subnet-prefixes $subnetPrefixSecondary
+az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name $subnetName --subnet-prefixes $subnetPrefixPrimary
+az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name $subnetName --subnet-prefixes $subnetPrefixSecondary
 ```
 
 ### Peer virtual networks (VNET Peering)
@@ -106,4 +107,16 @@ az network vnet peering create --name vnetPrimary-vnetSecondary --resource-group
 az network vnet peering create --name vnetSecondary-vnetPrimary --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --remote-vnet $vnetPrimaryId --allow-vnet-access
 ```
 
+### Create the NSGs
 
+```text
+az network nsg create --resource-group $resourceGroupPrimary --name $nsgPrimary
+az network nsg create --resource-group $resourceGroupSecondary --name $nsgSecondary
+```
+
+### Associate a NSG to the Primary and Secondary subnets
+
+```text
+az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --name $subnetName --network-security-group $nsgPrimary
+az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetName --network-security-group $nsgSecondary
+```
