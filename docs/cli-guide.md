@@ -2,9 +2,11 @@
 
 ## Deployment guide of an Azure Virtual Machine Scale Set in a multi-region environment
 
-Add Description
+_ADD-DESCRIPTION-OF-THE-GUIDE_
 
-* Topology (add hyperlink)
+### Reference architecture
+
+![Architecture](../images/vmss-high-availability-multi-region-v1.png)
 
 ## Prerequisites
 
@@ -58,7 +60,8 @@ subnetCIDRPrimary="10.0.0.0/16"
 subnetCIDRSecondary="10.1.0.0/16"
 subnetPrefixPrimary="10.0.0.0/24"
 subnetPrefixSecondary="10.1.0.0/24"
-subnetName="subnet1"
+subnetNamePrimary="subnet1"
+subnetNameSecondary="subnet1"
 nsgPrimary="nsgpri$randomString"
 nsgSecondary="nsgsec$randomString"
 loadBalancerPrimary="lbpri$randomString"
@@ -82,8 +85,8 @@ az group create --name $resourceGroupSecondary --location $regionSecondary
 ### Create Primary and Secondary VNET
 
 ```text
-az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name $subnetName --subnet-prefixes $subnetPrefixPrimary
-az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name $subnetName --subnet-prefixes $subnetPrefixSecondary
+az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name $subnetNamePrimary --subnet-prefixes $subnetPrefixPrimary
+az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name $subnetNameSecondary --subnet-prefixes $subnetPrefixSecondary
 ```
 
 ### Peer virtual networks (VNET Peering)
@@ -117,6 +120,37 @@ az network nsg create --resource-group $resourceGroupSecondary --name $nsgSecond
 ### Associate a NSG to the Primary and Secondary subnets
 
 ```text
-az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --name $subnetName --network-security-group $nsgPrimary
-az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetName --network-security-group $nsgSecondary
+az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --name $subnetNamePrimary --network-security-group $nsgPrimary
+az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetNameSecondary --network-security-group $nsgSecondary
+```
+
+### Create a security rule
+
+```text
+az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTPS-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 443 --protocol Tcp --description "Allow SSH"
+
+az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTPS-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 443 --protocol Tcp --description "Allow SSH"
+```
+
+### NEXT CREATE A VM
+
+```text
+
+az vmss create \
+  --resource-group $resourceGroupPrimary \
+  --name $vmssPrimary \
+  --image "MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest" \
+  --location $regionPrimary \   
+  --admin-username $adminUsername \
+  --admin-password $adminPassword \
+  --computer-name-prefix "vmss"
+  --instance-count 3 \
+  --os-disk-caching "ReadWrite" \  
+  --platform-fault-domain-count 1 \
+  --vnet-name $vnetPrimary \
+  --subnet $subnetNamePrimary \
+  --upgrade-policy-mode "automatic" \
+  --vm-sku "Standard_D2s_v5" \
+  --zones 1 2 3
+
 ```
