@@ -85,8 +85,8 @@ az group create --name $resourceGroupSecondary --location $regionSecondary
 ### Create Primary and Secondary VNET
 
 ```text
-az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetPrimary --subnet-name $subnetNamePrimary --subnet-prefixes $subnetPrefixPrimary
-az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetSecondary --subnet-name $subnetNameSecondary --subnet-prefixes $subnetPrefixSecondary
+az network vnet create --name $vnetPrimary --resource-group $resourceGroupPrimary --address-prefix $subnetCIDRPrimary --subnet-name $subnetNamePrimary --subnet-prefixes $subnetPrefixPrimary
+az network vnet create --name $vnetSecondary --resource-group $resourceGroupSecondary --address-prefix $subnetCIDRSecondary --subnet-name $subnetNameSecondary --subnet-prefixes $subnetPrefixSecondary
 ```
 
 ### Peer virtual networks (VNET Peering)
