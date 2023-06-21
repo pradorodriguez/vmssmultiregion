@@ -51,7 +51,7 @@ _[Copy & Paste instructions for Azure Cloud Shell](https://learn.microsoft.com/e
 ```text
 let "randomString=$RANDOM*$RANDOM"
 regionPrimary="eastus"
-regionSecondary="westus"
+regionSecondary="westus3"
 resourceGroupPrimary="rgpri$randomString"
 resourceGroupSecondary="rgsec$randomString"
 vnetPrimary="vnetpri$randomString"
@@ -71,7 +71,7 @@ vmssPrimary="vmsspri$randomString"
 vmssSecondary="vmsssec$randomString"
 logAnalyticsWorkspace="la$randomString"
 adminUsername="adminuser"
-adminPassword="pwd$randomString"
+adminPassword="Password-$randomString"
 echo randomString: $randomString
 ```
 
@@ -132,25 +132,46 @@ az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $ns
 az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTPS-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 443 --protocol Tcp --description "Allow SSH"
 ```
 
-### NEXT CREATE A VM
+### Create the Virtual Machine Scale Sets (VMSS)
+
+#### Create the primary VMSS
 
 ```text
-
 az vmss create \
   --resource-group $resourceGroupPrimary \
   --name $vmssPrimary \
-  --image "MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest" \
-  --location $regionPrimary \   
+  --image MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest \
+  --location $regionPrimary \
+  --authentication-type password \
   --admin-username $adminUsername \
   --admin-password $adminPassword \
-  --computer-name-prefix "vmss"
+  --computer-name-prefix "vmss" \
   --instance-count 3 \
-  --os-disk-caching "ReadWrite" \  
-  --platform-fault-domain-count 1 \
+  --os-disk-caching ReadWrite \
   --vnet-name $vnetPrimary \
   --subnet $subnetNamePrimary \
-  --upgrade-policy-mode "automatic" \
-  --vm-sku "Standard_D2s_v5" \
+  --upgrade-policy-mode automatic \
+  --vm-sku Standard_D2s_v5 \
   --zones 1 2 3
+```
 
+#### Create the secondary VMSS
+
+```text
+az vmss create \
+  --resource-group $resourceGroupSecondary \
+  --name $vmssSecondary \
+  --image MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest \
+  --location $regionSecondary \
+  --authentication-type password \
+  --admin-username $adminUsername \
+  --admin-password $adminPassword \
+  --computer-name-prefix "vmss" \
+  --instance-count 3 \
+  --os-disk-caching ReadWrite \
+  --vnet-name $vnetSecondary \
+  --subnet $subnetNameSecondary \
+  --upgrade-policy-mode automatic \
+  --vm-sku Standard_D2s_v5 \
+  --zones 1 2 3
 ```
