@@ -64,8 +64,11 @@ subnetNamePrimary="subnet1"
 subnetNameSecondary="subnet1"
 nsgPrimary="nsgpri$randomString"
 nsgSecondary="nsgsec$randomString"
+pipLbPrimary="pipvmsspri$randomString"
+pipLbSecondary="pipvmsssec$randomString"
 loadBalancerPrimary="lbpri$randomString"
 loadBalancerSecondary="lbsec$randomString"
+lbBackendPool="lbbackendpoolname"
 trafficManager="tf$randomString"
 vmssPrimary="vmsspri$randomString"
 vmssSecondary="vmsssec$randomString"
@@ -124,12 +127,36 @@ az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name
 az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetNameSecondary --network-security-group $nsgSecondary
 ```
 
-### Create a security rule
+### Create a security rule to allow inbound HTTP traffic
 
 ```text
-az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTPS-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 443 --protocol Tcp --description "Allow SSH"
+az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
 
-az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTPS-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 443 --protocol Tcp --description "Allow SSH"
+az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
+```
+
+### Create the Load Balancer
+
+#### Create a public IP addresses for the Primary and Secondary Load Balancers
+
+```text
+az network public-ip create --resource-group $resourceGroupPrimary --name $pipLbPrimary --sku Standard --zone 1 2 3
+az network public-ip create --resource-group $resourceGroupSecondary --name $pipLbSecondary --sku Standard --zone 1 2 3
+```
+
+#### Create the Primary and Secondary Load Balancers
+
+```text
+az network lb create --resource-group $resourceGroupPrimary --name $loadBalancerPrimary --sku Standard --public-ip-address $pipLbPrimary --frontend-ip-name lbFrontEnd
+az network lb create --resource-group $resourceGroupSecondary --name $loadBalancerSecondary --sku Standard --public-ip-address $pipLbSecondary --frontend-ip-name lbFrontEnd
+```
+
+#### Create the VMSS health probe on port 80
+
+```text
+az network lb probe create --resource-group $resourceGroupPrimary --lb-name $loadBalancerPrimary --name vmss-HealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
+
+az network lb probe create --resource-group $resourceGroupSecondary --lb-name $loadBalancerSecondary --name vmss-HealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
 ```
 
 ### Create the Virtual Machine Scale Sets (VMSS)
@@ -152,7 +179,9 @@ az vmss create \
   --subnet $subnetNamePrimary \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
-  --zones 1 2 3
+  --zones 1 2 3 \
+  --lb $loadBalancerPrimary \
+  --backend-pool-name $lbBackendPool
 ```
 
 #### Create the secondary VMSS
@@ -173,5 +202,7 @@ az vmss create \
   --subnet $subnetNameSecondary \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
-  --zones 1 2 3
+  --zones 1 2 3 \
+  --lb $loadBalancerSecondary \
+  --backend-pool-name $lbBackendPool
 ```
