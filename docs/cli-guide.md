@@ -180,8 +180,7 @@ az vmss create \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
   --zones 1 2 3 \
-  --lb $loadBalancerPrimary \
-  --backend-pool-name $lbBackendPool
+  --lb $loadBalancerPrimary   
 ```
 
 #### Create the secondary VMSS
@@ -203,6 +202,5 @@ az vmss create \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
   --zones 1 2 3 \
-  --lb $loadBalancerSecondary \
-  --backend-pool-name $lbBackendPool
+  --lb $loadBalancerSecondary
 ```
