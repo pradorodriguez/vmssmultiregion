@@ -6,7 +6,7 @@ _ADD-DESCRIPTION-OF-THE-GUIDE_
 
 ### Reference architecture
 
-![Architecture](../images/vmss-high-availability-multi-region-v1.png)
+![Architecture](../images/vmss-high-availability-multi-region-v1.jpeg)
 
 ## Prerequisites
 
