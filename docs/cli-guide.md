@@ -245,7 +245,7 @@ az network lb rule create \
     --idle-timeout-in-minutes 15 
 ```
 
-### Create the Traffic Manager - NOT TESTED
+### Create and configure the Traffic Manager
 
 #### Create the Traffic Manager Profile
 
@@ -261,14 +261,14 @@ az network traffic-manager profile create \
     --port 80
 ```
 
-#### Get Resource Id of the Primary and Secondary Load Balancer Public IP
+#### Get the Resource Id of the Primary and Secondary Load Balancer Public IP
 
 ```text
 pipLbPrimaryId=$(az network public-ip show --resource-group $resourceGroupPrimary --name $pipLbPrimary --query id --out tsv)
 pipLbSecondaryId=$(az network public-ip show --resource-group $resourceGroupSecondary --name $pipLbSecondary --query id --out tsv)
 ```
 
-#### Create the Primary Endpoint
+#### Create the Primary Endpoint (Primary Load Balancer)
 
 ```text
 az network traffic-manager endpoint create \
@@ -281,7 +281,7 @@ az network traffic-manager endpoint create \
     --endpoint-status Enabled
 ```
 
-#### Create the Secondary Endpoint
+#### Create the Secondary Endpoint (Secondary Load Balancer)
 
 ```text
 az network traffic-manager endpoint create \
