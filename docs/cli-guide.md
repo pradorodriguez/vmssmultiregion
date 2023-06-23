@@ -293,5 +293,3 @@ az network traffic-manager endpoint create \
     --priority 2 \
     --endpoint-status Enabled
 ```
-
-# CONFIGURE DNS FOR THE PUBLIC IPS
