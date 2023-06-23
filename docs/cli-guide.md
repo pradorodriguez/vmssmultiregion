@@ -132,7 +132,6 @@ az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-na
 
 ```text
 az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
-
 az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
 ```
 
@@ -156,7 +155,6 @@ az network lb create --resource-group $resourceGroupSecondary --name $loadBalanc
 
 ```text
 az network lb probe create --resource-group $resourceGroupPrimary --lb-name $loadBalancerPrimary --name $lbHealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
-
 az network lb probe create --resource-group $resourceGroupSecondary --lb-name $loadBalancerSecondary --name $lbHealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
 ```
 
@@ -206,9 +204,16 @@ az vmss create \
   --lb $loadBalancerSecondary
 ```
 
-#### Create Load Balancers rules
+### Create the Load Balancers rules
 
-### Get the 
+#### Get the Primary and Secondary Load Balancers Backend Pool names
+
+```text
+lbBackendPoolPrimary=$(az network lb show --resource-group $resourceGroupPrimary --name $loadBalancerPrimary --query backendAddressPools[].name --out tsv)
+lbBackendPoolSecondary=$(az network lb show --resource-group $resourceGroupSecondary --name $loadBalancerSecondary --query backendAddressPools[].name --out tsv)
+```
+
+#### Create the Primary Load Balancers rule
 
 ```text
 az network lb rule create \
@@ -219,7 +224,23 @@ az network lb rule create \
     --frontend-port 80 \
     --backend-port 80 \
     --frontend-ip-name $lbFrontendIp \
-    --backend-pool-name $lbBackendPool \
+    --backend-pool-name $lbBackendPoolPrimary \
+    --probe-name $lbHealthProbe \
+    --idle-timeout-in-minutes 15 
+```
+
+#### Create the  Primary and Secondary Load Balancers rules
+
+```text
+az network lb rule create \
+    --resource-group $resourceGroupSecondary \
+    --lb-name $loadBalancerSecondary \
+    --name vmssHTTPRule \
+    --protocol tcp \
+    --frontend-port 80 \
+    --backend-port 80 \
+    --frontend-ip-name $lbFrontendIp \
+    --backend-pool-name $lbBackendPoolSecondary \
     --probe-name $lbHealthProbe \
     --idle-timeout-in-minutes 15 
 ```
