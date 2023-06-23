@@ -68,7 +68,8 @@ pipLbPrimary="pipvmsspri$randomString"
 pipLbSecondary="pipvmsssec$randomString"
 loadBalancerPrimary="lbpri$randomString"
 loadBalancerSecondary="lbsec$randomString"
-lbBackendPool="lbbackendpoolname"
+lbFrontendIp="lbFrontEnd"
+lbHealthProbe="vmss-HealthProbe"
 trafficManager="tf$randomString"
 vmssPrimary="vmsspri$randomString"
 vmssSecondary="vmsssec$randomString"
@@ -94,40 +95,40 @@ az network vnet create --name $vnetSecondary --resource-group $resourceGroupSeco
 
 ### Peer virtual networks (VNET Peering)
 
-#### Get the resource id's of the VNETs
+#### Get the resource id's of the Primary and Secondary VNETs
 
 ```text
 vnetPrimaryId=$(az network vnet show --resource-group $resourceGroupPrimary --name $vnetPrimary --query id --out tsv)
 vnetSecondaryId=$(az network vnet show --resource-group $resourceGroupSecondary --name $vnetSecondary --query id --out tsv)
 ```
 
-#### Create a peering from vnetPrimary to vnetSecondary
+#### Create a VNET Peering from vnetPrimary to vnetSecondary
 
 ```text
 az network vnet peering create --name vnetPrimary-vnetSecondary --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --remote-vnet $vnetSecondaryId --allow-vnet-access
 ```
 
-#### Create a peering from vnetSecondary to vnetPrimary
+#### Create a VNET Peering from vnetSecondary to vnetPrimary
 
 ```text
 az network vnet peering create --name vnetSecondary-vnetPrimary --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --remote-vnet $vnetPrimaryId --allow-vnet-access
 ```
 
-### Create the NSGs
+### Create the Primary and Secondary NSGs
 
 ```text
 az network nsg create --resource-group $resourceGroupPrimary --name $nsgPrimary
 az network nsg create --resource-group $resourceGroupSecondary --name $nsgSecondary
 ```
 
-### Associate a NSG to the Primary and Secondary subnets
+### Associate a NSGs to the Primary and Secondary subnets
 
 ```text
 az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --name $subnetNamePrimary --network-security-group $nsgPrimary
 az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetNameSecondary --network-security-group $nsgSecondary
 ```
 
-### Create a security rule to allow inbound HTTP traffic
+### Create a security rules to allow inbound HTTP traffic
 
 ```text
 az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
@@ -135,7 +136,7 @@ az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $ns
 az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $nsgSecondary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
 ```
 
-### Create the Load Balancer
+### Create the Load Balancers
 
 #### Create a public IP addresses for the Primary and Secondary Load Balancers
 
@@ -147,16 +148,16 @@ az network public-ip create --resource-group $resourceGroupSecondary --name $pip
 #### Create the Primary and Secondary Load Balancers
 
 ```text
-az network lb create --resource-group $resourceGroupPrimary --name $loadBalancerPrimary --sku Standard --public-ip-address $pipLbPrimary --frontend-ip-name lbFrontEnd
-az network lb create --resource-group $resourceGroupSecondary --name $loadBalancerSecondary --sku Standard --public-ip-address $pipLbSecondary --frontend-ip-name lbFrontEnd
+az network lb create --resource-group $resourceGroupPrimary --name $loadBalancerPrimary --sku Standard --public-ip-address $pipLbPrimary --frontend-ip-name $lbFrontendIp
+az network lb create --resource-group $resourceGroupSecondary --name $loadBalancerSecondary --sku Standard --public-ip-address $pipLbSecondary --frontend-ip-name $lbFrontendIp
 ```
 
 #### Create the VMSS health probe on port 80
 
 ```text
-az network lb probe create --resource-group $resourceGroupPrimary --lb-name $loadBalancerPrimary --name vmss-HealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
+az network lb probe create --resource-group $resourceGroupPrimary --lb-name $loadBalancerPrimary --name $lbHealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
 
-az network lb probe create --resource-group $resourceGroupSecondary --lb-name $loadBalancerSecondary --name vmss-HealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
+az network lb probe create --resource-group $resourceGroupSecondary --lb-name $loadBalancerSecondary --name $lbHealthProbe --protocol tcp --port 80 --interval-in-seconds 360 --number-of-probes 5
 ```
 
 ### Create the Virtual Machine Scale Sets (VMSS)
@@ -180,8 +181,7 @@ az vmss create \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
   --zones 1 2 3 \
-  --lb $loadBalancerPrimary \
-  --backend-pool-name $lbBackendPool
+  --lb $loadBalancerPrimary   
 ```
 
 #### Create the secondary VMSS
@@ -203,6 +203,23 @@ az vmss create \
   --upgrade-policy-mode automatic \
   --vm-sku Standard_D2s_v5 \
   --zones 1 2 3 \
-  --lb $loadBalancerSecondary \
-  --backend-pool-name $lbBackendPool
+  --lb $loadBalancerSecondary
+```
+
+#### Create Load Balancers rules
+
+### Get the 
+
+```text
+az network lb rule create \
+    --resource-group $resourceGroupPrimary \
+    --lb-name $loadBalancerPrimary \
+    --name vmssHTTPRule \
+    --protocol tcp \
+    --frontend-port 80 \
+    --backend-port 80 \
+    --frontend-ip-name $lbFrontendIp \
+    --backend-pool-name $lbBackendPool \
+    --probe-name $lbHealthProbe \
+    --idle-timeout-in-minutes 15 
 ```
