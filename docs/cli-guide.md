@@ -140,8 +140,8 @@ az network nsg rule create --resource-group $resourceGroupSecondary --nsg-name $
 #### Create a public IP addresses for the Primary and Secondary Load Balancers
 
 ```text
-az network public-ip create --resource-group $resourceGroupPrimary --name $pipLbPrimary --sku Standard --zone 1 2 3
-az network public-ip create --resource-group $resourceGroupSecondary --name $pipLbSecondary --sku Standard --zone 1 2 3
+az network public-ip create --resource-group $resourceGroupPrimary --name $pipLbPrimary --dns-name $pipLbPrimary --sku Standard --zone 1 2 3
+az network public-ip create --resource-group $resourceGroupSecondary --name $pipLbSecondary  --dns-name $pipLbSecondary  --sku Standard --zone 1 2 3
 ```
 
 #### Create the Primary and Secondary Load Balancers
@@ -293,3 +293,5 @@ az network traffic-manager endpoint create \
     --priority 2 \
     --endpoint-status Enabled
 ```
+
+# CONFIGURE DNS FOR THE PUBLIC IPS
