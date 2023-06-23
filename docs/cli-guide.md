@@ -128,7 +128,7 @@ az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name
 az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetNameSecondary --network-security-group $nsgSecondary
 ```
 
-### Create a security rules to allow inbound HTTP traffic
+### Create NSG security rules to allow inbound HTTP traffic
 
 ```text
 az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
@@ -213,7 +213,7 @@ lbBackendPoolPrimary=$(az network lb show --resource-group $resourceGroupPrimary
 lbBackendPoolSecondary=$(az network lb show --resource-group $resourceGroupSecondary --name $loadBalancerSecondary --query backendAddressPools[].name --out tsv)
 ```
 
-#### Create the Primary Load Balancers rule
+#### Create the Primary Load Balancer rule
 
 ```text
 az network lb rule create \
@@ -229,7 +229,7 @@ az network lb rule create \
     --idle-timeout-in-minutes 15 
 ```
 
-#### Create the  Primary and Secondary Load Balancers rules
+#### Create the  Primary and Secondary Load Balancer rule
 
 ```text
 az network lb rule create \
@@ -243,4 +243,53 @@ az network lb rule create \
     --backend-pool-name $lbBackendPoolSecondary \
     --probe-name $lbHealthProbe \
     --idle-timeout-in-minutes 15 
+```
+
+### Create the Traffic Manager - NOT TESTED
+
+#### Create the Traffic Manager Profile
+
+```text
+az network traffic-manager profile create \
+    --name $trafficManager \
+    --resource-group $resourceGroupPrimary \
+    --routing-method Priority \
+    --path '/' \
+    --protocol "HTTP" \
+    --unique-dns-name $trafficManager  \
+    --ttl 30 \
+    --port 80
+```
+
+#### Get Resource Id of the Primary and Secondary Load Balancer Public IP
+
+```text
+pipLbPrimaryId=$(az network public-ip show --resource-group $resourceGroupPrimary --name $pipLbPrimary --query id --out tsv)
+pipLbSecondaryId=$(az network public-ip show --resource-group $resourceGroupSecondary --name $pipLbSecondary --query id --out tsv)
+```
+
+#### Create the Primary Endpoint
+
+```text
+az network traffic-manager endpoint create \
+    --name $loadBalancerPrimary \
+    --resource-group $resourceGroupPrimary \
+    --profile-name $trafficManager \
+    --type azureEndpoints \
+    --target-resource-id $pipLbPrimaryId \
+    --priority 1 \
+    --endpoint-status Enabled
+```
+
+#### Create the Secondary Endpoint
+
+```text
+az network traffic-manager endpoint create \
+    --name $loadBalancerSecondary \
+    --resource-group $resourceGroupPrimary \
+    --profile-name $trafficManager \
+    --type azureEndpoints \
+    --target-resource-id $pipLbSecondaryId \
+    --priority 2 \
+    --endpoint-status Enabled
 ```
