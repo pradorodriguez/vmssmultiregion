@@ -99,5 +99,20 @@ Update-AzVmss -ResourceGroupName $resourceGroupPrimary -Name $vmssPrimary -Virtu
 Update-AzVmss -ResourceGroupName $resourceGroupSecondary -Name $vmssSecondary -VirtualMachineScaleSet $vmssSecondaryExtension
 ```
 
-### Test Multi-region availability
+### Test the Multi-region availability
 
+* Open a browser and paste the Traffic Manager FQDN
+
+```text
+http://<replace-with-trafficManagerFqdn>
+```
+
+* Stop the primary VMSS
+
+* Wait 90 seconds for the Traffic Manager to route traffic to Secondary VMSS
+
+* Refresh the Traffic Manager FQDN in the portal
+
+```text
+http://<replace-with-trafficManagerFqdn>
+```
