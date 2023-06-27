@@ -2,22 +2,20 @@
 
 ## Testing the Multiregion VMSS resources
 
-In the following guide you will be 
+In the following guide you will be installing the IIS service and a basic website in the VMSSs. The installation of the website may help validate the proper installation of the VMSS and the networking resources.
 
 ## Prerequisites
 
 ### Complete the steps from the implementation guide
 
-[implementation guide](cli-guide.md)
+[Multi region VMSS implementation guide](cli-guide.md)
 
 ### Get the values of the following variables
 
-```text
-resourceGroupPrimary: Name of primary resource group
-resourceGroupSecondary: Name of secondary resource group
-vmssPrimary: Name of primary vmss
-vmssSecondary: Name of secondary vmss
-```
+* resourceGroupPrimary: Name of primary resource group
+* resourceGroupSecondary: Name of secondary resource group
+* vmssPrimary: Name of primary vmss
+* vmssSecondary: Name of secondary vmss
 
 ## Step by Step guide to test the configuration
 
@@ -86,9 +84,16 @@ $vmssSecondaryExtension = Add-AzVmssExtension `
   -Setting $customConfig
 ```
 
-### Update the primary and secondary scale sets to apply the Custom Script Extension
+### Apply the Custom Script Extension to the VMSSs
+
+#### Apply the Custom Script Extension to the primary VMSS
 
 ```text
 Update-AzVmss -ResourceGroupName $resourceGroupPrimary -Name $vmssPrimary -VirtualMachineScaleSet $vmssPrimaryExtension
+```
+
+#### Apply the Custom Script Extension to the secondary VMSS
+
+```text
 Update-AzVmss -ResourceGroupName $resourceGroupSecondary -Name $vmssSecondary -VirtualMachineScaleSet $vmssSecondaryExtension
 ```
