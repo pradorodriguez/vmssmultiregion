@@ -1,8 +1,8 @@
-# Day 2 and 3 Implementation
+# Day 2 and 3 Implementation - Azure CLI Guide
 
 ## Deployment guide of an Azure Virtual Machine Scale Set in a multi-region environment
 
-_ADD-DESCRIPTION-OF-THE-GUIDE_
+The purpose of this guide is to implement a resilience and high available environment for your applications using Virtual Machine Scale Sets (VMSS). In this guide the VMSS will be deployed in a multizone and multiregion environment. With this configuration, your applications will be tolerant to single VM, datacenter and region failures, with an automatic failover due to the use of Regional Load Balancer solutions (Azure Traffic Manager).
 
 ### Reference architecture
 
@@ -36,13 +36,15 @@ The following resources will be deployed as part of this guide. All the steps to
 
 ### Open the Cloud Shell icon
 
-* In the Azure Portal, click the top-right icon named "Cloud Shell" 
+* In the Azure Portal, click the top-right icon named "Cloud Shell"
+  * Inside the Cloud Shell, in the top-left icon select "Bash"
 or
 * Open a new browser tab and go to the following website:
 
 <https://shell.azure.com>
 
 * Paste the following commands in the Azure Cloud Shell
+  * Inside the Cloud Shell, in the top-left icon select "Bash"
 
 _[Copy & Paste instructions for Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/using-the-shell-window#copy-and-paste)_
 
