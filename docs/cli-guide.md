@@ -259,6 +259,9 @@ az network traffic-manager profile create \
     --path '/' \
     --protocol "HTTP" \
     --unique-dns-name $trafficManager  \
+    --interval 30 \
+    --max-failures 3 \
+    --timeout 10 \
     --ttl 30 \
     --port 80
 ```
