@@ -295,3 +295,12 @@ az network traffic-manager endpoint create \
     --priority 2 \
     --endpoint-status Enabled
 ```
+
+### Output Azure services names
+
+```text
+echo variable-resourceGroupPrimary: $resourceGroupPrimary
+echo variable-resourceGroupSecondary: $resourceGroupSecondary
+echo variable-vmssPrimary: $vmssPrimary
+echo variable-vmssSecondary: $vmssSecondary
+```
