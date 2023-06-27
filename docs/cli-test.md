@@ -97,3 +97,6 @@ Update-AzVmss -ResourceGroupName $resourceGroupPrimary -Name $vmssPrimary -Virtu
 ```text
 Update-AzVmss -ResourceGroupName $resourceGroupSecondary -Name $vmssSecondary -VirtualMachineScaleSet $vmssSecondaryExtension
 ```
+
+### Test Multi-region availability
+
