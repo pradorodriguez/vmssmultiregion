@@ -306,4 +306,9 @@ echo variable-resourceGroupPrimary: $resourceGroupPrimary
 echo variable-resourceGroupSecondary: $resourceGroupSecondary
 echo variable-vmssPrimary: $vmssPrimary
 echo variable-vmssSecondary: $vmssSecondary
+echo variable-trafficManager: $trafficManager
+echo variable-vnetPrimary: $vnetPrimary
+echo variable-vnetSecondary: $vnetSecondary
+echo variable-loadBalancerPrimary: $loadBalancerPrimary
+echo variable-loadBalancerSecondary: $loadBalancerSecondary
 ```
