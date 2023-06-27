@@ -314,3 +314,11 @@ echo variable-vnetSecondary: $vnetSecondary
 echo variable-loadBalancerPrimary: $loadBalancerPrimary
 echo variable-loadBalancerSecondary: $loadBalancerSecondary
 ```
+
+_If you are testing the environment High Availability qualities by using the [testing guide](cli-test.md), copy and save following variables:_
+
+* resourceGroupPrimary
+* resourceGroupSecondary
+* vmssPrimary
+* vmssSecondary
+* trafficManagerFqdn
