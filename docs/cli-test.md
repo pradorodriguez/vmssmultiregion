@@ -16,6 +16,7 @@ In the following guide you will be installing the IIS service and a basic websit
 * resourceGroupSecondary: Name of secondary resource group
 * vmssPrimary: Name of primary vmss
 * vmssSecondary: Name of secondary vmss
+* trafficManagerFqdn: Traffic Manager Fully Qualified Domain Name (FQDN)
 
 ## Step by Step guide to test the configuration
 
