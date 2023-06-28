@@ -2,7 +2,7 @@
 
 ## Deployment guide of an Azure Virtual Machine Scale Set in a multi-region environment
 
-The purpose of this guide is to implement a resilience and high available environment for your applications using Virtual Machine Scale Sets (VMSS). In this guide the VMSS will be deployed in a multizone and multiregion environment. With this configuration, your applications will be tolerant to single VM, datacenter and region failures, with an automatic failover due to the use of Regional Load Balancer solutions (Azure Traffic Manager).
+The purpose of this guide is to implement a resilience and high available environment for your applications using Virtual Machine Scale Sets (VMSS). In this guide the VMSS will be deployed in a multi-zone and multi-region environment. With this configuration, your applications will be tolerant to single VM, datacenter and region failures, with an automatic failover due to the use of Regional Load Balancer solutions (Azure Traffic Manager).
 
 ### Reference architecture
 
@@ -25,8 +25,6 @@ The following resources will be deployed as part of this guide. All the steps to
 * Load Balancer
 * Traffic Manager
 * Virtual Machine Scale Set
-* Azure Monitor
-* Log Analytics
 
 ## Step by Step guide to deploy a multi-region VMSS
 
@@ -75,7 +73,6 @@ lbHealthProbe="vmss-HealthProbe"
 trafficManager="tf$randomString"
 vmssPrimary="vmsspri$randomString"
 vmssSecondary="vmsssec$randomString"
-logAnalyticsWorkspace="la$randomString"
 adminUsername="adminuser"
 adminPassword="Password-$randomString"
 echo randomString: $randomString
@@ -123,14 +120,14 @@ az network nsg create --resource-group $resourceGroupPrimary --name $nsgPrimary
 az network nsg create --resource-group $resourceGroupSecondary --name $nsgSecondary
 ```
 
-### Associate a NSGs to the Primary and Secondary subnets
+### Associate NSGs to the Primary and Secondary subnets
 
 ```text
 az network vnet subnet update --resource-group $resourceGroupPrimary --vnet-name $vnetPrimary --name $subnetNamePrimary --network-security-group $nsgPrimary
 az network vnet subnet update --resource-group $resourceGroupSecondary --vnet-name $vnetSecondary --name $subnetNameSecondary --network-security-group $nsgSecondary
 ```
 
-### Create NSG security rules to allow inbound HTTP traffic
+### Create a NSG security rule to allow inbound HTTP traffic
 
 ```text
 az network nsg rule create --resource-group $resourceGroupPrimary --nsg-name $nsgPrimary --name HTTP-rule --priority 300 --destination-address-prefixes '*' --destination-port-ranges 80 --protocol Tcp --description "Allow HTTP"
@@ -231,7 +228,7 @@ az network lb rule create \
     --idle-timeout-in-minutes 15 
 ```
 
-#### Create the  Primary and Secondary Load Balancer rule
+#### Create the Secondary Load Balancer rule
 
 ```text
 az network lb rule create \
@@ -307,15 +304,15 @@ echo variable-resourceGroupPrimary: $resourceGroupPrimary
 echo variable-resourceGroupSecondary: $resourceGroupSecondary
 echo variable-vmssPrimary: $vmssPrimary
 echo variable-vmssSecondary: $vmssSecondary
-echo variable-trafficManager: $trafficManager
 echo variable-trafficManagerFqdn: $trafficManagerFqdn
+echo variable-trafficManager: $trafficManager
 echo variable-vnetPrimary: $vnetPrimary
 echo variable-vnetSecondary: $vnetSecondary
 echo variable-loadBalancerPrimary: $loadBalancerPrimary
 echo variable-loadBalancerSecondary: $loadBalancerSecondary
 ```
 
-_If you are testing the environment High Availability qualities by using the [testing guide](cli-test.md), copy and save following variables:_
+_If you are testing the environment region redundancy by using the [testing guide](cli-test.md), copy and save following variables:_
 
 * resourceGroupPrimary
 * resourceGroupSecondary
