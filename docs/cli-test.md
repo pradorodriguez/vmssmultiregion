@@ -2,7 +2,7 @@
 
 ## Testing the Multiregion VMSS resources
 
-In the following guide you will be installing the IIS service and a basic website in the VMSSs. The installation of the website may help validate the proper installation of the VMSS and the networking resources.
+In the following guide you will be installing the IIS service and a basic website in the VMSSs. The installation of the website will help validate the redundancy techniques that Azure provides to the applications.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ $customConfig = @{
 }
 ```
 
-### Get the resource information of the primary and secondary scale sets
+### Get the resource information of the primary and secondary VMSS
 
 ```text
 $vmssPrimaryExtension = Get-AzVmss -ResourceGroupName $resourceGroupPrimary -VMScaleSetName $vmssPrimary
@@ -107,12 +107,16 @@ Update-AzVmss -ResourceGroupName $resourceGroupSecondary -Name $vmssSecondary -V
 http://<replace-with-trafficManagerFqdn>
 ```
 
-* Stop the primary VMSS
+* The website should be up and running. A reference to the Primary VMSS name should be displayed.
 
-* Wait 90 seconds for the Traffic Manager to route traffic to Secondary VMSS
+* Stop the primary VMSS.
 
-* Refresh the Traffic Manager FQDN in the portal
+* Wait 90 seconds for the Traffic Manager to route traffic to Secondary VMSS.
+
+* Refresh the Traffic Manager FQDN in the portal.
 
 ```text
 http://<replace-with-trafficManagerFqdn>
 ```
+
+* The website should be up and running. A reference to the Secondary VMSS name should be displayed.
