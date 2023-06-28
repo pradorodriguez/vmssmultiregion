@@ -4,6 +4,6 @@
 
 [docs/cli-guide.md](docs/cli-guide.md)
 
-* You may test the provisioned resources by following this section:
+* Test redundancy features of the provisioned resources by following this section:
 
 [docs/cli-test.md](docs/cli-test.md)
