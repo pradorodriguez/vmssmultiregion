@@ -302,13 +302,13 @@ az network traffic-manager endpoint create \
 ### Output Azure services names
 
 ```text
-trafficManagerFqdn=$(az network traffic-manager profile show --resource-group $resourceGroupPrimary --name $trafficManager --query dnsConfig.fqdn --out tsv)
+trafficManagerFqdn=http://$(az network traffic-manager profile show --resource-group $resourceGroupPrimary --name $trafficManager --query dnsConfig.fqdn --out tsv)
 echo variable-resourceGroupPrimary: $resourceGroupPrimary
 echo variable-resourceGroupSecondary: $resourceGroupSecondary
 echo variable-vmssPrimary: $vmssPrimary
 echo variable-vmssSecondary: $vmssSecondary
 echo variable-trafficManager: $trafficManager
-echo variable-trafficManagerFqdn: http://$trafficManagerFqdn
+echo variable-trafficManagerFqdn: $trafficManagerFqdn
 echo variable-vnetPrimary: $vnetPrimary
 echo variable-vnetSecondary: $vnetSecondary
 echo variable-loadBalancerPrimary: $loadBalancerPrimary
