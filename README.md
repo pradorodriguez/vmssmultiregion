@@ -2,7 +2,9 @@
 
 * Deployment guide can be found in the following section:
 
-[docs/cli-guide.md](docs/cli-guide.md)
+[CLI Guide (Recommended): docs/cli-guide.md](docs/cli-guide.md)
+
+[Azure Portal Guide: docs/portal-guide.md](docs/portal-guide.md)
 
 * Test redundancy features of the provisioned resources by following this section:
 
