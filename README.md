@@ -2,7 +2,7 @@
 
 * Deployment guide can be found in the following section:
 
-[CLI Guide (Recommended): docs/cli-guide.md](docs/cli-guide.md)
+[CLI Guide (RECOMMENDED): docs/cli-guide.md](docs/cli-guide.md)
 
 [Azure Portal Guide: docs/portal-guide.md](docs/portal-guide.md)
 
