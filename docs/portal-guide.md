@@ -19,7 +19,6 @@ The purpose of this guide is to implement a resilience and high available enviro
 The following resources will be deployed as part of this guide. All the steps to create the resources will be specified, but you may reuse existing services.
 
 * Resource Group
-* VNET
 * Virtual Network (VNET)
 * Network Security Group (NSG)
 * Load Balancer
